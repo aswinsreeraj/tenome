@@ -1,11 +1,12 @@
 package crawler
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"net/http"
 	"tenome/internal/model"
+
+	"golang.org/x/net/html"
 )
 
 type Crawler interface {
@@ -31,14 +32,11 @@ func (c *HTTPCrawler) Crawl(ctx context.Context, url string) (model.Page, error)
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return model.Page{}, fmt.Errorf("Not Found")
 	}
-	scanner := bufio.NewScanner(resp.Body)
-	for scanner.Scan() {
-		fmt.Println(scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
-		return model.Page{}, err
-	}
 
 	return model.Page{}, nil
 
+}
+
+func walk(node *html.Node) {
+	
 }

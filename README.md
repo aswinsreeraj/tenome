@@ -1,0 +1,3 @@
+# Tenome: A basic concurrent crawler with the functionality of search engine
+
+This project was created to understand and implement a CI/CD pipeline using Jenkins and GitHub Actions. This is basically a hobby project. Additionally, this project provides a refresher on topics including *Data Strcutures* (Inverted Index), *Caching* (Redis, LRU Cache), *SQL driver* (SQLite) and *Concurrent Programming* (Worker Pool).
