@@ -74,18 +74,18 @@ pipeline {
             agent any
             steps {
                 sh '''
-                    docker compose down
-                    docker compose up -d
-                '''
-                // docker rm -f tenome || true
+                docker rm -f tenome || true
 
-                // docker run -d \
-                //     --name tenome \
-                //     -p 8050:8050 \
-                //     -e DB_PATH=/data/crawler.db \
-                //     -e REDIS_ADDR=host.docker.internal:6379 \
-                //     -v /opt/tenome/data:/app/data \
-                //     tenome:${BUILD_NUMBER}
+                docker run -d \
+                    --name tenome \
+                    -p 8050:8050 \
+                    -e DB_PATH=/data/crawler.db \
+                    -e REDIS_ADDR=host.docker.internal:6379 \
+                    -v /opt/tenome/data:/app/data \
+                    tenome:${BUILD_NUMBER}
+                '''
+                //     docker compose down
+                //     docker compose up -d
                 // '''
             }
         }
