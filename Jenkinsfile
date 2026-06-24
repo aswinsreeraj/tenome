@@ -6,10 +6,59 @@ pipeline {
     }
 
     stages {
-        stage('Hello') {
+        stage('Format') {
             steps {
-                sh 'echo hello'
+                sh 'test -z "$(gofmt -l .)'
             }
+        }
+
+        stage('Vet') {
+            steps {
+                sh 'go vet ./...'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'go test ./...'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'go build -o tenome ./cmd/server/main.go'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh '''
+                docker build \
+                    -t tenome:${BUILD_NUMBER} .
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                docker rm -f tenome || true
+
+                docker run -d \
+                    --name tenome \
+                    -p 8050:8050 \
+                    -e DP_PATH=/data/crawler.db \
+                    -e REDIS_ADDR=host.docker.internal:6379 \
+                    -v /opt/tenome/data:/app/data \
+                    tenome:${BUILD_NUMBER}
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            archiveArtifacts artifact: 'tenome'
         }
     }
 }

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"os"
 	"tenome/internal/api"
 	"tenome/internal/cache"
 	"tenome/internal/crawler"
@@ -12,23 +13,27 @@ import (
 	"tenome/internal/service"
 	"tenome/internal/storage"
 	"tenome/internal/worker"
+	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 	_ "modernc.org/sqlite"
 )
 
 func main() {
+	godotenv.Load()
+	dbPath := os.Getenv("DB_PATH")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	defer cancel()
 
-	ctx := context.Background()
-
-	db, err := sql.Open("sqlite", "crawler.db")
+	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     os.Getenv("REDIS_ADDR"),
 		Password: "",
 		DB:       0,
 	})
@@ -66,6 +71,6 @@ func main() {
 	}
 
 	log.Println("server starting on :8050")
-	log.Fatal(http.ListenAndServe(":8050", mux))
+	log.Fatal(http.ListenAndServe(os.Getenv("PORT"), mux))
 
 }

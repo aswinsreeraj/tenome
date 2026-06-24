@@ -2,13 +2,15 @@ FROM golang:1.26 AS builder
 
 WORKDIR /app
 
-COPY . .
+COPY go.mod go.sum ./
 
 RUN go mod download
 
-RUN go build -o tenome ./cmd/server/main.go
+COPY . .
 
-FROM debain:bookworm-slim
+RUN go build -o tenome ./cmd/server
+
+FROM debian:bookworm-slim
 
 WORKDIR /app
 
