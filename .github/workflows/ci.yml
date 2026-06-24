@@ -1,0 +1,36 @@
+name: CI
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+            
+            - name: Setup Go
+              uses: actions/setup-go@v6
+              with:
+                go-version-file: 'go.mod'
+                cache: true
+            
+            
+            - name: Format Check
+              run: |
+                test -z "$(gofmt -l .)"
+            
+            - name: Vet
+              run: |
+                go vet ./...
+            
+            - name: Test
+              run: |
+                g test ./..
+            
+            - name: Build
+              run: |
+                go build -o tenome ./cmd/server
