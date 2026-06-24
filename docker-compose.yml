@@ -1,0 +1,24 @@
+services:
+  dragonfly:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    container_name: dragonfly
+    restart: unless-stopped
+  tenome:
+    image: tenome:${BUILD_NUMBER:-latest}
+    container_name: tenome
+
+    depends_on:
+      - dragonfly
+    
+    ports:
+      - "8050:8050"
+
+    environment:
+      - DB_PATH=/data/crawler.DB_PATH
+      - REDIS_ADDR=dragonfly:6379
+
+    volumes:
+      - ./data:/data
+    
+    restart: unless-stopped
+    

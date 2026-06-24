@@ -71,6 +71,6 @@ func main() {
 	}
 
 	log.Println("server starting on :8050")
-	log.Fatal(http.ListenAndServe(os.Getenv("PORT"), mux))
+	log.Fatal(http.ListenAndServe(":8050", mux))
 
 }

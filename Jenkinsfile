@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Format') {
             steps {
-                sh 'test -z "$(gofmt -l .)'
+                sh 'test -z "$(gofmt -l .)"'
             }
         }
 
@@ -42,23 +42,26 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                docker rm -f tenome || true
-
-                docker run -d \
-                    --name tenome \
-                    -p 8050:8050 \
-                    -e DP_PATH=/data/crawler.db \
-                    -e REDIS_ADDR=host.docker.internal:6379 \
-                    -v /opt/tenome/data:/app/data \
-                    tenome:${BUILD_NUMBER}
+                    docker compose down
+                    docker compose up -d
                 '''
+                // docker rm -f tenome || true
+
+                // docker run -d \
+                //     --name tenome \
+                //     -p 8050:8050 \
+                //     -e DB_PATH=/data/crawler.db \
+                //     -e REDIS_ADDR=host.docker.internal:6379 \
+                //     -v /opt/tenome/data:/app/data \
+                //     tenome:${BUILD_NUMBER}
+                // '''
             }
         }
     }
 
     post {
         success {
-            archiveArtifacts artifact: 'tenome'
+            archiveArtifacts artifacts: 'tenome'
         }
     }
 }
