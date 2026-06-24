@@ -4,22 +4,32 @@ import (
 	"context"
 	"database/sql"
 	"net/http"
+	"sync"
 	"tenome/internal/crawler"
 	"tenome/internal/index"
 	"tenome/internal/storage"
 	"tenome/internal/worker"
-	"time"
 
+	"github.com/redis/go-redis/v9"
 	_ "modernc.org/sqlite"
 )
 
 func main() {
 
 	ctx := context.Background()
+	var wg sync.WaitGroup
 	db, err := sql.Open("sqlite", "crawler.db")
 	if err != nil {
 		panic(err)
 	}
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+
+	defer rdb.Close()
 
 	storage := storage.New(db)
 	idx := index.New()
@@ -34,7 +44,10 @@ func main() {
 	jobs := make(chan worker.CrawlJob, 100)
 	for i := range 4 {
 		w := worker.New(i, crawly, storage, idx)
-		go w.Start(ctx, jobs)
+
+		wg.Go(func() {
+			w.Start(ctx, jobs)
+		})
 	}
 
 	urls := []string{
@@ -50,7 +63,7 @@ func main() {
 
 	close(jobs)
 
-	time.Sleep(2 * time.Second)
+	wg.Wait()
 
 	// pagex := model.Page{
 	// 	URL:     "https://go.dev",
