@@ -2,53 +2,61 @@ pipeline {
     agent none
 
     environment {
-        GOCACHE = "${WORKSPACE}/.cache/go-build"
-        GOPATH  = "${WORKSPACE}/.go"
+        GOCACHE = "/tmp/go-build-cache"
+        GOMODCACHE = "/tmp/go-mod-cache"
+        // GOPATH  = "${WORKSPACE}/.go"
     }
 
     stages {
-        // stage('Format') {
-        //     agent {
-        //         docker {
-        //             image 'golang:1.26'
-        //         }
-        //     }
-
-        //     steps {
-        //         sh 'test -z "$(gofmt -l .)"'
-        //     }
-        // }
-
-        // stage('Vet') {
-        //     agent {
-        //         docker {
-        //             image 'golang:1.26'
-        //         }
-        //     }
-        //     steps {
-        //         sh 'go vet ./...'
-        //     }
-        // }
-
-        stage('Test') {
+        stage('Debug') {
             agent {
                 docker {
                     image 'golang:1.26'
                 }
             }
+
             steps {
-                sh 'go test ./...'
+                sh '''
+                pwd
+                go version
+                go env
+                '''
             }
         }
-
-        stage('Build') {
+        stage('CI') {
             agent {
                 docker {
                     image 'golang:1.26'
                 }
             }
-            steps {
-                sh 'go build -o tenome ./cmd/server/main.go'
+
+            stages {
+                stage('Format') {
+                    steps {
+                        sh '''
+                            gofmt -l . | grep -v "^.go/" | tee fmt.out
+                            test ! -s fmt.out
+                        '''
+                    }
+                }
+
+                stage('Vet') {
+                    steps {
+                        sh 'go vet ./...'
+                    }
+                }
+
+                stage('Test') {
+                    steps {
+                        sh 'go test ./...'
+                    }
+                }
+
+                stage('Build') {
+                    steps {
+                        sh 'go build -o tenome ./cmd/server/main.go'
+                    }
+                }
             }
         }
 
