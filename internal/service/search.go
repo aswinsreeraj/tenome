@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log"
 	"strings"
 	"tenome/internal/cache"
 	"tenome/internal/index"
@@ -26,13 +27,13 @@ func (s *SearchService) Search(ctx context.Context, term string) ([]model.Page, 
 
 	pages, found, err := s.cache.Get(ctx, key)
 	if err != nil {
-		return nil, err
+		found = false
 	}
 	if found {
 		return pages, nil
 	}
 
-	ids, err := s.index.Search(ctx, key)
+	ids, err := s.index.Search(ctx, term)
 
 	if err != nil {
 		return nil, err
@@ -44,9 +45,8 @@ func (s *SearchService) Search(ctx context.Context, term string) ([]model.Page, 
 		return nil, err
 	}
 
-	err = s.cache.Set(ctx, key, pages)
-	if err != nil {
-		return nil, err
+	if err := s.cache.Set(ctx, key, pages); err != nil {
+		log.Println("Cache saving failed.", err)
 	}
 
 	return pages, nil
