@@ -36,11 +36,6 @@ pipeline {
                     image 'golang:1.26'
                 }
             }
-            agent {
-                docker {
-                    image 'golang:1.26'
-                }
-            }
             steps {
                 sh 'go test ./...'
             }
