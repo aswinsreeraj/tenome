@@ -5,6 +5,11 @@ pipeline {
         }
     }
 
+    environment {
+        GOCACHE = "${WORKSPACE}/.cache/go-build"
+        GOPATH  = "${WORKSPACE}/.go"
+    }
+
     stages {
         stage('Format') {
             steps {
