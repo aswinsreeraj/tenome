@@ -91,9 +91,9 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            archiveArtifacts artifacts: 'tenome'
-        }
-    }
+    // post {
+    //     success {
+    //         archiveArtifacts artifacts: 'tenome'
+    //     }
+    // }
 }
