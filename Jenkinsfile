@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'golang:1.26'
-        }
-    }
+    agent none
 
     environment {
         GOCACHE = "${WORKSPACE}/.cache/go-build"
@@ -12,30 +8,57 @@ pipeline {
 
     stages {
         stage('Format') {
+            agent {
+                docker {
+                    image 'golang:1.26'
+                }
+            }
+
             steps {
                 sh 'test -z "$(gofmt -l .)"'
             }
         }
 
         stage('Vet') {
+            agent {
+                docker {
+                    image 'golang:1.26'
+                }
+            }
             steps {
                 sh 'go vet ./...'
             }
         }
 
         stage('Test') {
+            agent {
+                docker {
+                    image 'golang:1.26'
+                }
+            }
+            agent {
+                docker {
+                    image 'golang:1.26'
+                }
+            }
             steps {
                 sh 'go test ./...'
             }
         }
 
         stage('Build') {
+            agent {
+                docker {
+                    image 'golang:1.26'
+                }
+            }
             steps {
                 sh 'go build -o tenome ./cmd/server/main.go'
             }
         }
 
         stage('Docker Build') {
+            agent any
             steps {
                 sh '''
                 docker build \
@@ -45,6 +68,7 @@ pipeline {
         }
 
         stage('Deploy') {
+            agent any
             steps {
                 sh '''
                     docker compose down
