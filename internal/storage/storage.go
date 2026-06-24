@@ -8,4 +8,5 @@ import (
 type Storage interface {
 	Migrate(ctx context.Context) error
 	SavePage(ctx context.Context, page model.Page) (int64, error)
+	GetPagesByIDs(ctx context.Context, ids []int64) ([]model.Page, error)
 }
