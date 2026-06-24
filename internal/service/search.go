@@ -10,6 +10,10 @@ import (
 	"tenome/internal/storage"
 )
 
+type Searcher interface {
+	Search(ctx context.Context, term string) ([]model.Page, error)
+}
+
 type SearchService struct {
 	index   index.Index
 	storage storage.Storage

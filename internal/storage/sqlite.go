@@ -81,3 +81,33 @@ func (s *SQLiteStorage) GetPagesByIDs(ctx context.Context, ids []int64) ([]model
 
 	return pages, nil
 }
+
+func (s *SQLiteStorage) GetAllPages(ctx context.Context) ([]model.Page, error) {
+	query := "SELECT * FROM pages"
+	rows, err := s.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var pages []model.Page
+	for rows.Next() {
+		var page model.Page
+
+		if err := rows.Scan(
+			&page.ID,
+			&page.URL,
+			&page.Title,
+			&page.Content,
+		); err != nil {
+			return nil, err
+		}
+		pages = append(pages, page)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return pages, nil
+}
