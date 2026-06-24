@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"net/http"
 	"tenome/internal/crawler"
 	"tenome/internal/index"
-	"tenome/internal/model"
 	"tenome/internal/storage"
+	"tenome/internal/worker"
+	"time"
 
 	_ "modernc.org/sqlite"
 )
@@ -22,39 +22,58 @@ func main() {
 	}
 
 	storage := storage.New(db)
+	idx := index.New()
+	client := http.Client{}
+	crawly := crawler.New(&client)
+
 	err = storage.Migrate(ctx)
 	if err != nil {
 		panic(err)
 	}
 
-	pagex := model.Page{
-		URL:     "https://go.dev",
-		Title:   "Go",
-		Content: "Go language",
+	jobs := make(chan worker.CrawlJob, 100)
+	for i := range 4 {
+		w := worker.New(i, crawly, storage, idx)
+		go w.Start(ctx, jobs)
 	}
 
-	page1 := model.Page{URL: "https://aswingo.dev", Title: "Golang Fundamentals", Content: "Go is good for concurrency"}
-	page2 := model.Page{URL: "https://go.aswin", Title: "Go!", Content: "Channels"}
-	storage.SavePage(ctx, pagex)
+	urls := []string{
+		"https://go.dev",
+		"https://golang.org",
+		"https://pkg.go.dev",
+		"https://go.dev/doc",
+	}
 
-	storage.SavePage(ctx, page1)
-	storage.SavePage(ctx, page2)
-	pages, err := storage.GetPagesByIDs(ctx, []int64{1, 2, 3})
+	for _, url := range urls {
+		jobs <- worker.CrawlJob{URL: url}
+	}
 
-	fmt.Println(pages)
+	close(jobs)
 
-	idx := index.New()
-	idx.Add(ctx, page1)
-	idx.Add(ctx, page2)
+	time.Sleep(2 * time.Second)
 
-	inds, _ := idx.Search(ctx, "GO")
-	fmt.Println(inds)
+	// pagex := model.Page{
+	// 	URL:     "https://go.dev",
+	// 	Title:   "Go",
+	// 	Content: "Go language",
+	// }
 
-	client := http.Client{}
+	// page1 := model.Page{URL: "https://aswingo.dev", Title: "Golang Fundamentals", Content: "Go is good for concurrency"}
+	// page2 := model.Page{URL: "https://go.aswin", Title: "Go!", Content: "Channels"}
+	// storage.SavePage(ctx, pagex)
 
-	crawly := crawler.New(&client)
-	page, _ := crawly.Crawl(ctx, "https://go.dev")
+	// storage.SavePage(ctx, page1)
+	// storage.SavePage(ctx, page2)
+	// pages, err := storage.GetPagesByIDs(ctx, []int64{1, 2, 3})
 
-	fmt.Println(page.Title, page.URL, page.ID)
-	fmt.Println(len(page.Content))
+	// idx.Add(ctx, page1)
+	// idx.Add(ctx, page2)
+
+	// inds, _ := idx.Search(ctx, "GO")
+	// fmt.Println(inds)
+
+	// page, _ := crawly.Crawl(ctx, "https://go.dev")
+
+	// fmt.Println(page.Title, page.URL, page.ID)
+	// fmt.Println(len(page.Content))
 }

@@ -3,7 +3,6 @@ package storage
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"strings"
 	"tenome/internal/model"
 )
@@ -51,12 +50,10 @@ func (s *SQLiteStorage) GetPagesByIDs(ctx context.Context, ids []int64) ([]model
 		return []model.Page{}, nil
 	}
 	query := "SELECT id, url, title, content FROM pages WHERE id IN (" + strings.Repeat("?, ", len(ids)-1) + "?)"
-	fmt.Println(query)
 	args := make([]any, len(ids))
 	for i := range ids {
 		args[i] = ids[i]
 	}
-	fmt.Println(args)
 	rows, err := s.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
