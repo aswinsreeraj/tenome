@@ -81,7 +81,7 @@ pipeline {
                     -p 8050:8050 \
                     -e DB_PATH=/data/crawler.db \
                     -e REDIS_ADDR=host.docker.internal:6379 \
-                    -v /opt/tenome/data:/app/data \
+                    -v /opt/tenome/data:/data \
                     tenome:${BUILD_NUMBER}
                 '''
                 //     docker compose down
