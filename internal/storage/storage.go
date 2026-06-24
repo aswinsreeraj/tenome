@@ -1,5 +1,11 @@
 package storage
 
+import (
+	"context"
+	"tenome/internal/model"
+)
+
 type Storage interface {
-	SavePage(ctx context.Context, page Page) error
+	Migrate(ctx context.Context) error
+	SavePage(ctx context.Context, page model.Page) (int64, error)
 }
