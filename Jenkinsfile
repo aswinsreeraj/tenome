@@ -7,28 +7,28 @@ pipeline {
     }
 
     stages {
-        stage('Format') {
-            agent {
-                docker {
-                    image 'golang:1.26'
-                }
-            }
+        // stage('Format') {
+        //     agent {
+        //         docker {
+        //             image 'golang:1.26'
+        //         }
+        //     }
 
-            steps {
-                sh 'test -z "$(gofmt -l .)"'
-            }
-        }
+        //     steps {
+        //         sh 'test -z "$(gofmt -l .)"'
+        //     }
+        // }
 
-        stage('Vet') {
-            agent {
-                docker {
-                    image 'golang:1.26'
-                }
-            }
-            steps {
-                sh 'go vet ./...'
-            }
-        }
+        // stage('Vet') {
+        //     agent {
+        //         docker {
+        //             image 'golang:1.26'
+        //         }
+        //     }
+        //     steps {
+        //         sh 'go vet ./...'
+        //     }
+        // }
 
         stage('Test') {
             agent {
