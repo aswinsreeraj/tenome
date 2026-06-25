@@ -60,14 +60,17 @@ pipeline {
             }
         }
 
-        stage('SonarQube') {
+        stage('SonarQube Analysis') {
             agent any
+
             steps {
-                withSonarQubeEnv('Sonar') {
-                    sh '''
-                        sonar-scanner \
-                        -Dsonar.projectKey=tenome
-                    '''
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('Sonar') {
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner
+                        """
+                    }
                 }
             }
         }
