@@ -61,6 +61,7 @@ pipeline {
         }
 
         stage('SonarQube') {
+            agent any
             steps {
                 withSonarQubeEnv('Sonar') {
                     sh '''
@@ -72,6 +73,7 @@ pipeline {
         }
 
         stage('Quality Gate') {
+            agent any
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
