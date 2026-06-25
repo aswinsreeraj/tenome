@@ -24,7 +24,7 @@ func (w *Worker) Start(ctx context.Context, jobs <-chan CrawlJob) {
 	for job := range jobs {
 		fmt.Printf("Worker #%d pocessing %s\n", w.id, job.URL)
 		if err := w.Process(ctx, job); err != nil {
-			fmt.Printf("Worker #%d failed %s\n", w.id, job.URL)
+			fmt.Printf("Worker #%d failed %s: %v\n", w.id, job.URL, err)
 			continue
 		}
 	}
