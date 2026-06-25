@@ -48,7 +48,7 @@ pipeline {
 
                 stage('Test') {
                     steps {
-                        sh 'go test ./...'
+                        sh 'go test ./... -coverprofile=coverage.out'
                     }
                 }
 
@@ -56,6 +56,25 @@ pipeline {
                     steps {
                         sh 'go build -o tenome ./cmd/server/main.go'
                     }
+                }
+            }
+        }
+
+        stage('SonarQube') {
+            steps {
+                withSonarQubeEnv('Sonar') {
+                    sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=tenome
+                    '''
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
