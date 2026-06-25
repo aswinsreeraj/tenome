@@ -61,7 +61,7 @@ jobs:
                     docker run -d \
                         --name tenome \
                         --network tenome-net \
-                        --restart unless_stopped \
+                        --restart unless-stopped \
                         -p 8050:8050 \
                         -e DB_PATH=/data/crawler.db \
                         -e REDIS_ADDR=dragonfly:6379 \
