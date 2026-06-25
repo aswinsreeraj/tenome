@@ -94,6 +94,30 @@ pipeline {
             }
         }
 
+        stage('Approval') {
+            agent any
+
+            steps {
+                input message: 'Deploy to Production?'
+            }
+        }
+
+        // stage('Deploy Staging') {
+        //     when {
+        //         branch 'develop'
+        //     }
+        //      steps {
+        //      }
+        // }
+
+        // stage('Deploy Production') {
+        //     when {
+        //         branch 'master'
+        //     }
+        //      steps {
+        //      }
+        // }
+
         stage('Deploy') {
             agent any
             steps {
